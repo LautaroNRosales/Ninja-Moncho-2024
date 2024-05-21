@@ -55,15 +55,15 @@ export default class Game extends Phaser.Scene {
     this.cursor = this.input.keyboard.createCursorKeys();
 
     // Crear Grupo Recolectables
-    this.recolectables = this.physics.add.group(
-      {
-        key: ["triangulo", "cuadrado", "rombo"],
-    });
- 
+    this.recolectables = this.physics.add.group();
+    
+    //Colisiones de recolectables con personaje y entorno
     this.recolectables.children.iterate(function (child) {
 
       child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
     })
+
+    
 
     this.physics.add.collider(this.personaje, this.recolectables);
 
@@ -84,6 +84,16 @@ export default class Game extends Phaser.Scene {
       callbackScope: this,
       loop: true,
     })
+    //Colocar Puntos
+    let score = 0;
+    let scoreText;
+    scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+
+    function collectRecolec (personaje, recolectable){
+    recolectable.disableBody(true, true);
+    score += 25;
+    scoreText.setText('Score: ' + score);
+    }
   }
 
   onSecond() {
@@ -91,7 +101,7 @@ export default class Game extends Phaser.Scene {
     const tipos = ["triangulo", "cuadrado", "rombo"];
     const tipo = Phaser.Math.RND.pick(tipos);
     let recolectable = this.recolectables.create(
-      Phaser.Math.Between(10, 790),
+      Phaser.Math.Between(20, 750),
       0,
       tipo
     );
