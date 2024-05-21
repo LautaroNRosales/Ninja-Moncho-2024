@@ -5,7 +5,16 @@ export default class Game extends Phaser.Scene {
     super("mainh");
   }
 
-  init() {}
+  init() {
+    this.gameOver = false;
+    this.timer = 30;
+    this.score = 0;
+    this.shapes = {
+      triangulo: { points: 10, count: 0},
+      cuadrado: { points: 20, count: 0},
+      rombo: { points: 30, count: 0 },
+    }
+  }
 
   preload() {
     //cargar assets
@@ -56,26 +65,8 @@ export default class Game extends Phaser.Scene {
 
     // Crear Grupo Recolectables
     this.recolectables = this.physics.add.group();
-    
-    //Colisiones de recolectables con personaje y entorno
-    this.recolectables.children.iterate(function (child) {
-
-      child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-    })
-
-    
-
-    this.physics.add.collider(this.personaje, this.recolectables);
-
-    this.physics.add.collider(this.recolectables, this.plataformas);
-
-    this.physics.add.overlap(this.personaje, this.recolectables, collectRecolec, null, this);
-
-    function collectRecolec ( personaje, recolectables)
-    {
-    recolectables.disableBody(true, true);
-    }
-
+    this.physics.add.collider(this.personaje, this,this.recolectables);
+    this.physics.add.collider(this.personaje, this,this.recolectables);
 
     //evento 1 segundo
     this.time.addEvent({
@@ -83,17 +74,28 @@ export default class Game extends Phaser.Scene {
       callback: this.onSecond,
       callbackScope: this,
       loop: true,
-    })
-    //Colocar Puntos
-    let score = 0;
-    let scoreText;
-    scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+    });
 
-    function collectRecolec (personaje, recolectable){
-    recolectable.disableBody(true, true);
-    score += 25;
-    scoreText.setText('Score: ' + score);
-    }
+    //Evento de 1 segundo
+    this.timer.addEvent({
+      delay: 1000,
+      callback: this.handlerTaimer,
+      callbackScope: this,
+      loop: true,
+    });
+
+    //agregar texto de tiempo
+    this.timerText = this.add.text (10, 10, `tiempo restante: ${this.timer}`, {
+      fontSize: "32px",
+      fill: "#fff",
+    })
+
+    this.scoreText = this.add.text(
+      10,
+      50,
+      `Puntaje: ${this.score}
+      T: ${this.shapes}`
+    )
   }
 
   onSecond() {
@@ -105,9 +107,19 @@ export default class Game extends Phaser.Scene {
       0,
       tipo
     );
+    recolectable.setVelocity(0, 100);
   }
 
   update() {
+    if (this.gameOver && this.recolectables.isDown) {
+      this.scene.resart();
+    }
+    if (this.gameOver) {
+      this.physics.pause();
+      this.timerText.setText("Game Over");
+      return;
+    }
+
     //movimientos de personajes
     if (this.cursor.left.isDown) {
       this.personaje.setVelocityX(-160);
@@ -119,6 +131,20 @@ export default class Game extends Phaser.Scene {
     }
     if (this.cursor.up.isDown && this.personaje.body.touching.down) {
       this.personaje.setVelocityY(-330)
+    }
+  }
+
+  onShapeCollect (personaje, recolectable) {
+    recolectable.log("recolectado", recolectable.texture.key);
+    recolectable.destroy();
+    
+  }
+
+  handlerTaimer() {
+    this.timer -= 1;
+    this.timerText.setText(`tiempo restante: ${this.timer}`);
+    if (this.time === 0) {
+      this.gameOver = true
     }
   }
 }
