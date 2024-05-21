@@ -55,8 +55,27 @@ export default class Game extends Phaser.Scene {
     this.cursor = this.input.keyboard.createCursorKeys();
 
     // Crear Grupo Recolectables
-    this.recolectables = this.physics.add.group();
+    this.recolectables = this.physics.add.group(
+      {
+        key: ["triangulo", "cuadrado", "rombo"],
+    });
+ 
+    this.recolectables.children.iterate(function (child) {
+
+      child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+    })
+
     this.physics.add.collider(this.personaje, this.recolectables);
+
+    this.physics.add.collider(this.recolectables, this.plataformas);
+
+    this.physics.add.overlap(this.personaje, this.recolectables, collectRecolec, null, this);
+
+    function collectRecolec ( personaje, recolectables)
+    {
+    recolectables.disableBody(true, true);
+    }
+
 
     //evento 1 segundo
     this.time.addEvent({
