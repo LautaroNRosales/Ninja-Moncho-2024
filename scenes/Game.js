@@ -7,7 +7,7 @@ export default class Game extends Phaser.Scene {
 
   init() {
     this.gameOver = false;
-    this.timer = 3;
+    this.timer = 30;
     this.score = 0;
     this.shapes = {
       triangulo: { puntos: 10, contar: 0},
