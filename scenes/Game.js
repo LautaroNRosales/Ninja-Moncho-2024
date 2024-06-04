@@ -208,7 +208,7 @@ export default class Game extends Phaser.Scene {
   handlerTaimer() {
     this.timer -= 1;
     this.timerText.setText(`tiempo restante: ${this.timer}`);
-    if (this.time === 0) {
+    if (this.timer <= 0) {
       this.gameOver = true;
       this.scene.start("end", {
         score: this.score,
