@@ -156,10 +156,14 @@ export default class Game extends Phaser.Scene {
       tipo
     );
     recolectable.setVelocity(0, 100);
-
+    
     //asignar rebote: busca un numero entre 0.4 y 0.8
     const rebote = Phaser.Math.FloatBetween(0.4, 0.8);
     recolectable.setBounce(rebote);
+
+    if (tipo === "bomba") {
+      recolectable.setScale(0.1);
+    }
 
     //set data
     recolectable.setData("puntos", this.shapes[tipo].puntos);
